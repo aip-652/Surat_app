@@ -125,7 +125,11 @@ class DokumenController extends Controller
       'tanggal' => $tanggal->format('Y-m-d'),
     ]);
 
-    return redirect()->back()->with('success', 'Memo Internal berhasil dibuat dengan nomor: ' . $nomorSurat);
+    return redirect()->back()
+    ->with([
+      'success'=>'Memo berhasil dibuat dengan nomor: ' . $nomorSurat,
+      'nomor_surat' => $nomorSurat,
+    ]);
   }
 
   /**
@@ -172,8 +176,11 @@ class DokumenController extends Controller
       'tanggal' => $tanggal->format('Y-m-d'),
     ]);
 
-    return redirect()->back()->with('success', 'Surat Keluar berhasil dibuat dengan nomor: ' . $nomorSurat);
-  }
+return redirect()->back()
+    ->with([
+      'success'=>'Surat keluar berhasil dibuat dengan nomor: ' . $nomorSurat,
+      'nomor_surat' => $nomorSurat,
+    ]);  }
 
   /**
    * Helper untuk mengubah angka bulan menjadi Romawi.
@@ -335,8 +342,11 @@ class DokumenController extends Controller
     $dataToCreate['nomor_dokumen'] = $nomorSurat;
     Dokumen::create($dataToCreate);
 
-    return redirect()->route('dashboard')->with('success', 'Dokumen backdate berhasil dibuat dengan nomor: ' . $nomorSurat);
-  }
+    return redirect()->back()
+      ->with([
+        'success' => 'Dokumen backdate berhasil dibuat dengan nomor: ' . $nomorSurat,
+        'nomor_surat' => $nomorSurat,
+      ]);  }
 
   public function createBackdate()
   {

@@ -3,8 +3,6 @@
 namespace App\Traits;
 
 use App\Models\AdminLog;
-use App\Models\Dokumen;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 trait LogsActivity
@@ -39,7 +37,8 @@ trait LogsActivity
     }
 
     $details = '';
-    $modelName = class_basename($model); // Mendapat nama model, misal: "User" atau "Dokumen"
+    $modelName = class_basename($model);
+    $ignoredFields = ['updated_at', 'created_at', 'last_login_at', 'password', 'remember_token'];
 
     if ($action === 'created') {
       $identifier = $model->name ?? $model->perihal ?? $model->nomor_dokumen;
@@ -50,9 +49,12 @@ trait LogsActivity
     } elseif ($action === 'updated') {
       $changes = [];
       foreach ($model->getChanges() as $key => $value) {
-        if ($key === 'updated_at') continue;
+        if (in_array($key, $ignoredFields, true)) {
+          continue; // lewati field yang tidak perlu dicatat
+        }
+
         $original = $model->getOriginal($key);
-        $changes[] = "'{$key}' sebelumnya '{$original}' diubah menjadi '{$value}'";
+        $changes[] = "'{$key}' dari '{$original}' menjadi '{$value}'";
       }
 
       if (empty($changes)) {

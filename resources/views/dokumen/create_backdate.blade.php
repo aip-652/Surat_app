@@ -10,6 +10,7 @@
       <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 md:p-8 bg-white border-b border-gray-200">
 
+          {{-- Judul + tombol kembali --}}
           <div class="flex items-center mb-8">
             <a href="{{ route('dashboard') }}" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300 transition duration-150">
               <i class="fas fa-arrow-left text-gray-700"></i>
@@ -20,6 +21,40 @@
             </h1>
           </div>
 
+          {{-- Notifikasi sukses --}}
+          @if (session('success'))
+          @php
+          $nomorSurat = session('nomor_surat');
+          @endphp
+
+          <div class="flex items-center mb-6 p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg">
+            <span class="font-medium">{{ session('success') }}</span>
+
+            @if ($nomorSurat)
+            <button
+              type="button"
+              onclick="copyNomorSurat('{{ $nomorSurat }}')"
+              class="ml-4 inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition">
+              <i class="fas fa-copy"></i>
+              <span>Copy</span>
+            </button>
+            @endif
+          </div>
+          @endif
+
+          {{-- Notifikasi error --}}
+          @if ($errors->any())
+          <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <strong class="font-bold">Oops! Terjadi kesalahan.</strong>
+            <ul class="mt-2 list-disc list-inside">
+              @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          </div>
+          @endif
+
+          {{-- Form utama --}}
           <form
             x-data="{ selectedType: '{{ old('jenis_dokumen', '') }}' }"
             action="{{ route('dokumen.store.backdate') }}"
@@ -78,10 +113,12 @@
               <x-input-label for="perihal" :value="__('Perihal')" />
               <x-text-input id="perihal" class="block mt-1 w-full" type="text" name="perihal" :value="old('perihal')" required />
             </div>
+
             <div x-show="selectedType" style="display: none;">
               <x-input-label for="kepada" :value="__('Kepada')" />
               <x-text-input id="kepada" class="block mt-1 w-full" type="text" name="kepada" :value="old('kepada')" />
             </div>
+
             <div x-show="selectedType" style="display: none;">
               <x-input-label for="pic" :value="__('PIC')" />
               <x-text-input id="pic" class="block mt-1 w-full" type="text" name="pic" :value="old('pic')" required />
@@ -97,4 +134,38 @@
       </div>
     </div>
   </div>
+
+  {{-- Script untuk copy nomor surat --}}
+  <script>
+    function copyNomorSurat(nomor) {
+      navigator.clipboard.writeText(nomor).then(() => {
+        const toast = document.createElement('div');
+        toast.textContent = 'Nomor surat disalin!';
+        toast.className = 'fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+      }).catch(err => {
+        alert('Gagal menyalin nomor surat.');
+        console.error(err);
+      });
+    }
+  </script>
+
+  <style>
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.3s ease-out;
+    }
+  </style>
 </x-app-layout>

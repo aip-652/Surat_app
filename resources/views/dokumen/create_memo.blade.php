@@ -10,24 +10,37 @@
       <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 md:p-8 bg-white border-b border-gray-200">
 
+          {{-- Tombol kembali + judul --}}
           <div class="flex items-center mb-8">
             <a href="{{ route('dashboard') }}" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300 transition duration-150">
               <i class="fas fa-arrow-left text-gray-700"></i>
             </a>
-
-            <h1 class="text-xl font-bold text-gray-800 ml-7">
-              Memo Internal
-            </h1>
-
+            <h1 class="text-xl font-bold text-gray-800 ml-7">Memo Internal</h1>
             <div class="w-10 h-10"></div>
           </div>
 
+          {{-- Notifikasi sukses --}}
           @if (session('success'))
-          <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded" role="alert">
-            {{ session('success') }}
+          @php
+          $nomorSurat = session('nomor_surat');
+          @endphp
+
+          <div class="flex items-center mb-6 p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg">
+            <span class="font-medium">{{ session('success') }}</span>
+
+            @if ($nomorSurat)
+            <button
+              type="button"
+              onclick="copyNomorSurat('{{ $nomorSurat }}')"
+              class="ml-4 inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition">
+              <i class="fas fa-copy"></i>
+              <span>Copy</span>
+            </button>
+            @endif
           </div>
           @endif
 
+          {{-- Notifikasi error --}}
           @if ($errors->any())
           <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
             <strong class="font-bold">Oops! Terjadi kesalahan.</strong>
@@ -39,6 +52,7 @@
           </div>
           @endif
 
+          {{-- Form utama --}}
           <form action="{{ route('dokumen.store.memo') }}" method="POST" class="space-y-6">
             @csrf
 
@@ -67,12 +81,6 @@
               <x-input-error :messages="$errors->get('kepada')" class="mt-2" />
             </div>
 
-            <!-- <div>
-              <x-input-label for="alamat" :value="__('Tujuan')" />
-              <x-text-input id="alamat" class="block mt-1 w-full" type="text" name="alamat" :value="old('alamat')" placeholder="Contoh: Divisi Keuangan" />
-              <x-input-error :messages="$errors->get('alamat')" class="mt-2" />
-            </div> -->
-
             <div>
               <x-input-label for="pic" :value="__('PIC')" />
               <x-text-input id="pic" class="block mt-1 w-full" type="text" name="pic" :value="old('pic')" required placeholder="Nama penanggung jawab" />
@@ -90,4 +98,39 @@
       </div>
     </div>
   </div>
+
+  {{-- Script untuk copy nomor surat --}}
+  <script>
+    function copyNomorSurat(nomor) {
+      navigator.clipboard.writeText(nomor).then(() => {
+        const toast = document.createElement('div');
+        toast.textContent = 'Nomor surat disalin!';
+        toast.className = 'fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+      }).catch(err => {
+        alert('Gagal menyalin nomor surat.');
+        console.error(err);
+      });
+    }
+  </script>
+
+  <style>
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.3s ease-out;
+    }
+  </style>
+
 </x-app-layout>
